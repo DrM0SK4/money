@@ -1,3 +1,4 @@
+"services for pandas dataframe"
 from typing import List, Tuple
 
 import matplotlib.pyplot as plt
@@ -68,7 +69,7 @@ def plot_pie_chart(total_credit_amount: float, total_debit_amount: float) -> Non
         ax.text(index, 0, f"{value:.2f}", ha="center", va="center")
 
     ax.text(
-        index + 1,
+        len(plot_data["Amount"]) + 1,
         0,
         f"{(total_credit_amount-total_debit_amount):.2f}",
         ha="center",
@@ -79,6 +80,11 @@ def plot_pie_chart(total_credit_amount: float, total_debit_amount: float) -> Non
 
 
 def month_analysis(df: pd.DataFrame) -> None:
+    """_summary_
+
+    Args:
+        df (pd.DataFrame): _description_
+    """
     # Convert the 'Date' column to datetime format
     df["Date"] = pd.to_datetime(df["Date"], format="%d-%m-%Y")
 
@@ -100,26 +106,9 @@ def month_analysis(df: pd.DataFrame) -> None:
     )
 
     # Plot stacked bar chart
-    ax = pivot_table.plot(kind="bar", stacked=True, colormap="tab20c")
+    pivot_table.plot(kind="bar", stacked=True, colormap="tab20c")
     plt.xlabel("Month")
     plt.ylabel("Amount")
     plt.title("Credit and Debit Amounts by Month")
     plt.legend(title="Type", loc="upper right")
     plt.show()
-
-
-def main():
-    df = pd.read_csv("mutations20240108202828.csv")
-
-    expenses = extract_column(df=df, col_names=["Type", "Amount"])
-    expenses.loc[:, "Amount"] = expenses["Amount"].apply(convert_amount)
-    total_credit_amount, total_debit_amount = compute_expenses(df=expenses)
-    # plot_pie_chart(
-    #     total_credit_amount=total_credit_amount, total_debit_amount=total_debit_amount
-    # )
-    month_analysis(df=df)
-
-
-if __name__ == "__main__":
-    main()
-    input("press any key to exit: ")

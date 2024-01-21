@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "money"
+version = "0.1.0"
+description = ""
+authors = ["Enrico <moscaen@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pandas = "^2.2.0"
+matplotlib = "^3.8.2"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.12.1"
+isort = "^5.13.2"
+pylint = "^3.0.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

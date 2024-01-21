@@ -1,0 +1,18 @@
+{
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        },
+    },
+    "pylint.path": [
+        "~/.venv/lib/python",
+        "-m",
+        "pylint"
+    ],
+    "isort.args": [
+        "--profile",
+        "black"
+    ],
+}
