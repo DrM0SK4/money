@@ -4,6 +4,8 @@ from typing import List, Tuple
 import matplotlib.pyplot as plt
 import pandas as pd
 
+INVESTMENT = "Investment"
+
 
 def extract_column(df: pd.DataFrame, col_names: List[str]) -> pd.Series:
     """Extract a list of columns from a dataframe.
@@ -18,6 +20,30 @@ def extract_column(df: pd.DataFrame, col_names: List[str]) -> pd.Series:
     return df[col_names]
 
 
+def convert_type_to_investment(df: pd.DataFrame) -> pd.DataFrame:
+    """Convert certain transactions type to investment.
+
+    Args:
+        df (pd.DataFrame): _description_
+
+    Returns:
+        pd.DataFrame: _description_
+    """
+    # return df[df["Description"] != "E. Mosca"]
+    investment_transactions_description = [
+        "E. Mosca",
+        "Flatex Bank AG",
+        "Degiro Enrico Mosca",
+    ]
+    for itd in investment_transactions_description:
+        df.loc[df["Description"] == itd, "Type"] = INVESTMENT
+    investment_transaction_name = ["1097726"]
+    for itn in investment_transaction_name:
+        df.loc[df["Name"].str.contains(itn, case=False, na=False), "Type"] = INVESTMENT
+
+    return df
+
+
 def convert_amount(amount: str) -> float:
     """Convert a string like 23,89 into a float like 23.89
 
@@ -30,35 +56,43 @@ def convert_amount(amount: str) -> float:
     return float(amount.replace(".", "").replace(",", "."))
 
 
-def compute_expenses(df: pd.DataFrame) -> Tuple[float, float]:
+def compute_expenses(df: pd.DataFrame) -> Tuple[float, float, float]:
     """Given a datarame with two columns Type and Amount:
         -> sum together all the Amount for Type == Debet
         -> sum together all the Amount for Type == Credit
+        -> sum together all the Amount for Type == Investment
 
     Args:
         df (pd.DataFrame): _description_
 
     Returns:
-        Tuple[float,float]: total_credit_amount,total_debit_amount
+        Tuple[float,float, float]: total_credit_amount,total_debit_amount,total_investment_amount
     """
 
     total_credit_amount: float = df.loc[df["Type"] == "Credit", "Amount"].sum()
     total_debit_amount: float = df.loc[df["Type"] == "Debet", "Amount"].sum()
+    total_investment_amount: float = df.loc[df["Type"] == INVESTMENT, "Amount"].sum()
 
-    return (total_credit_amount, total_debit_amount)
+    return (total_credit_amount, total_debit_amount, total_investment_amount)
 
 
-def plot_pie_chart(total_credit_amount: float, total_debit_amount: float) -> None:
-    """Plot the total credit and total debit as a pie chart.
+def plot_pie_chart(
+    total_credit_amount: float,
+    total_debit_amount: float,
+    total_investment_amount: float,
+) -> None:
+    """Plot the total credit, total debit and total investment as a pie chart.
 
     Args:
         total_credit_amount (float): _description_
         total_debit_amount (float): _description_
+        total_investment_amount (float): _description_
     """
 
     # Create a DataFrame for plotting
     plot_data = pd.DataFrame(
-        {"Amount": [total_credit_amount, total_debit_amount]}, index=["Credit", "Debit"]
+        {"Amount": [total_credit_amount, total_debit_amount, total_investment_amount]},
+        index=["Credit", "Debit", INVESTMENT],
     )
 
     # Plot a pie chart
@@ -75,7 +109,7 @@ def plot_pie_chart(total_credit_amount: float, total_debit_amount: float) -> Non
         ha="center",
         va="center",
     )
-    plt.title("Credit and Debit Amounts")
+    plt.title("Credit, Debit and Investment Amounts")
     plt.show()
 
 
@@ -92,15 +126,7 @@ def month_analysis(df: pd.DataFrame) -> None:
     df["Month"] = df["Date"].dt.month
     df = extract_column(df=df, col_names=["Type", "Amount", "Month", "Date"])
     df.loc[:, "Amount"] = df["Amount"].apply(convert_amount)
-    # Group the DataFrame by month
-    # grouped_by_month = df.groupby("Month").size()
 
-    # # Plot a histogram
-    # grouped_by_month.plot(kind="bar", color="skyblue")
-    # plt.xlabel("Month")
-    # plt.ylabel("Frequency")
-    # plt.title("Histogram of Dates by Month")
-    # plt.show()
     pivot_table = df.pivot_table(
         index="Month", columns="Type", values="Amount", aggfunc="sum", fill_value=0
     )
