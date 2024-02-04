@@ -9,10 +9,11 @@ from sklearn.pipeline import make_pipeline
 
 def classify(df: pd.DataFrame):
     # Load your labeled dataset (replace 'your_dataset.csv' with your actual file)
+    df["Name"] = df["Name"].fillna(df["Description"])
 
     # Assuming you have 'description' column and 'category' column in your dataset
-    X = df["description"]
-    y = df["category"]
+    X = df["Type"]
+    y = df["Name"]
 
     # Split the data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(
